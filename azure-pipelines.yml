@@ -1,0 +1,88 @@
+#trigger:
+ # branches:
+  #  include:
+   #   - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  ftpHost: 'ftp://217.21.90.208'
+  ftpPort: '21'
+  ftpUser: 'u937072605.digitalmetrics.in'
+  buildOutputDir: 'dist'   # default for Vite or Bolt-generated static site
+
+stages:
+
+# ========================
+# Build Stage
+# ========================
+- stage: Build
+  displayName: 'Install and Build'
+  jobs:
+  - job: BuildJob
+    displayName: 'Build Web App'
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '18.x'
+      displayName: 'Use Node.js 18'
+
+    - script: |
+        npm ci
+        npm audit fix || true
+        npm audit fix --force || true
+        npm run build
+      displayName: 'Install & Build'
+
+    - task: CopyFiles@2
+      displayName: 'Copy Build Output to Artifact Staging'
+      inputs:
+        SourceFolder: '$(buildOutputDir)'
+        Contents: '**'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/public_html'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifacts'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/public_html'
+        ArtifactName: 'Digital_Metrics'
+        publishLocation: 'Container'
+
+# ========================
+# Deploy Stage
+# ========================
+- stage: Deploy
+  displayName: 'FTP Deploy to Hostinger'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - deployment: DeployJob
+    displayName: 'FTP Upload'
+    environment: 'Production'     # ✅ This links to the environment you created
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - download: current
+              artifact: Digital_Metrics
+
+            - script: |
+                echo "====== Folder structure before FTP upload ======"
+                tree $(Pipeline.Workspace)/Digital_Metrics || ls -R $(Pipeline.Workspace)/Digital_Metrics
+              displayName: '📁 Confirm Folder Structure Before Upload'
+
+            - task: FtpUpload@2
+              displayName: '🚀 Upload to Hostinger FTP'
+              inputs:
+                credentialsOption: 'inputs'
+                serverUrl: '$(ftpHost)'
+                serverPort: '$(ftpPort)'
+                username: '$(ftpUser)'
+                password: '$(ftpPassword)'     # Make sure it's added as a secret variable
+                rootDirectory: '$(Pipeline.Workspace)/Digital_Metrics'
+                filePatterns: '**'
+                remoteDirectory: '/public_html'
+                clean: false
+                flattenFolders: false
+                preservePaths: true

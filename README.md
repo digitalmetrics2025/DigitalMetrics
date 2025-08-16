@@ -83,6 +83,29 @@ npm run preview
 npm run serve
 ```
 
+## 🔄 Azure DevOps Pipeline
+
+The project includes an Azure DevOps pipeline configuration (`azure-pipelines.yml`) for automated deployment:
+
+### **Pipeline Features:**
+- ✅ **Automated builds** on code changes
+- ✅ **FTP deployment** to Hostinger hosting
+- ✅ **Environment variables** integration
+- ✅ **Build artifacts** management
+
+### **Setup Instructions:**
+1. **Create Azure DevOps project**
+2. **Add pipeline** using `azure-pipelines.yml`
+3. **Set up environment** named "Production"
+4. **Add secret variable** `ftpPassword` in pipeline variables
+5. **Configure triggers** as needed
+
+### **Pipeline Variables:**
+- `ftpHost`: FTP server URL
+- `ftpUser`: FTP username
+- `ftpPassword`: FTP password (secret variable)
+- `buildOutputDir`: Build output directory (dist)
+
 ## 🔐 Admin Panel
 
 The app includes a complete CRM admin panel with role-based access:
