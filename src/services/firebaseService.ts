@@ -116,6 +116,10 @@ export const submitContactForm = async (formData: Omit<ContactSubmission, 'id' |
 // Get all client submissions (for admin dashboard)
 export const getClientSubmissions = async () => {
   try {
+    if (!isFirebaseAvailable()) {
+      return { success: false, error: 'Firebase not configured', data: [] };
+    }
+
     const q = query(collection(db, 'clientSubmissions'), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
     const submissions: ClientSubmission[] = [];
@@ -134,6 +138,10 @@ export const getClientSubmissions = async () => {
 // Get all contact submissions (for admin dashboard)
 export const getContactSubmissions = async () => {
   try {
+    if (!isFirebaseAvailable()) {
+      return { success: false, error: 'Firebase not configured', data: [] };
+    }
+
     const q = query(collection(db, 'contactSubmissions'), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
     const submissions: ContactSubmission[] = [];
@@ -156,6 +164,10 @@ export const updateSubmissionStatus = async (
   status: 'new' | 'contacted' | 'in-progress' | 'completed' | 'closed'
 ) => {
   try {
+    if (!isFirebaseAvailable()) {
+      return { success: false, error: 'Firebase not configured' };
+    }
+
     const docRef = doc(db, collection_name, id);
     await updateDoc(docRef, {
       status,
@@ -175,6 +187,10 @@ export const deleteSubmission = async (
   id: string
 ) => {
   try {
+    if (!isFirebaseAvailable()) {
+      return { success: false, error: 'Firebase not configured' };
+    }
+
     await deleteDoc(doc(db, collection_name, id));
     return { success: true };
   } catch (error) {
@@ -189,6 +205,10 @@ export const getSubmissionsByStatus = async (
   status: string
 ) => {
   try {
+    if (!isFirebaseAvailable()) {
+      return { success: false, error: 'Firebase not configured', data: [] };
+    }
+
     const q = query(
       collection(db, collection_name), 
       where('status', '==', status),
@@ -234,6 +254,10 @@ export const subscribeToNewsletter = async (email: string) => {
 // Get all newsletter subscriptions (for admin dashboard)
 export const getNewsletterSubscriptions = async () => {
   try {
+    if (!isFirebaseAvailable()) {
+      return { success: false, error: 'Firebase not configured', data: [] };
+    }
+
     const q = query(collection(db, 'newsletterSubscriptions'), orderBy('subscribedAt', 'desc'));
     const querySnapshot = await getDocs(q);
     const subscriptions: any[] = [];
@@ -252,6 +276,10 @@ export const getNewsletterSubscriptions = async () => {
 // Update newsletter subscription status
 export const updateNewsletterStatus = async (id: string, status: 'active' | 'unsubscribed') => {
   try {
+    if (!isFirebaseAvailable()) {
+      return { success: false, error: 'Firebase not configured' };
+    }
+
     const docRef = doc(db, 'newsletterSubscriptions', id);
     await updateDoc(docRef, {
       status,
@@ -268,6 +296,10 @@ export const updateNewsletterStatus = async (id: string, status: 'active' | 'uns
 // Delete newsletter subscription
 export const deleteNewsletterSubscription = async (id: string) => {
   try {
+    if (!isFirebaseAvailable()) {
+      return { success: false, error: 'Firebase not configured' };
+    }
+
     await deleteDoc(doc(db, 'newsletterSubscriptions', id));
     return { success: true };
   } catch (error) {
@@ -279,6 +311,11 @@ export const deleteNewsletterSubscription = async (id: string) => {
 // Client feedback functions
 export const addClientFeedback = async (formData: Omit<ClientFeedback, 'id' | 'createdAt' | 'updatedAt'>) => {
   try {
+    if (!isFirebaseAvailable()) {
+      console.warn('Firebase not configured, using mock response');
+      return { success: true, id: 'mock-id-' + Date.now() };
+    }
+
     const feedback: Omit<ClientFeedback, 'id'> = {
       ...formData,
       createdAt: Timestamp.now(),
@@ -296,6 +333,10 @@ export const addClientFeedback = async (formData: Omit<ClientFeedback, 'id' | 'c
 
 export const getClientFeedbacks = async () => {
   try {
+    if (!isFirebaseAvailable()) {
+      return { success: false, error: 'Firebase not configured', data: [] };
+    }
+
     const q = query(collection(db, 'clientFeedbacks'), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
     const feedbacks: ClientFeedback[] = [];
@@ -313,6 +354,10 @@ export const getClientFeedbacks = async () => {
 
 export const getActiveFeedbacks = async () => {
   try {
+    if (!isFirebaseAvailable()) {
+      return { success: false, error: 'Firebase not configured', data: [] };
+    }
+
     // Get all feedbacks first, then filter and sort in memory to avoid composite index requirement
     const q = query(collection(db, 'clientFeedbacks'));
     const querySnapshot = await getDocs(q);
@@ -339,6 +384,10 @@ export const getActiveFeedbacks = async () => {
 
 export const updateClientFeedback = async (id: string, formData: Partial<ClientFeedback>) => {
   try {
+    if (!isFirebaseAvailable()) {
+      return { success: false, error: 'Firebase not configured' };
+    }
+
     const docRef = doc(db, 'clientFeedbacks', id);
     await updateDoc(docRef, {
       ...formData,
@@ -354,6 +403,10 @@ export const updateClientFeedback = async (id: string, formData: Partial<ClientF
 
 export const deleteClientFeedback = async (id: string) => {
   try {
+    if (!isFirebaseAvailable()) {
+      return { success: false, error: 'Firebase not configured' };
+    }
+
     await deleteDoc(doc(db, 'clientFeedbacks', id));
     return { success: true };
   } catch (error) {
@@ -364,6 +417,10 @@ export const deleteClientFeedback = async (id: string) => {
 
 export const toggleFeedbackStatus = async (id: string, isActive: boolean) => {
   try {
+    if (!isFirebaseAvailable()) {
+      return { success: false, error: 'Firebase not configured' };
+    }
+
     const docRef = doc(db, 'clientFeedbacks', id);
     await updateDoc(docRef, {
       isActive,
