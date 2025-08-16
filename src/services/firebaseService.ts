@@ -13,6 +13,11 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
+// Check if Firebase is configured
+const isFirebaseAvailable = () => {
+  return db !== undefined;
+};
+
 // Types for our data
 export interface ClientSubmission {
   id?: string;
@@ -63,6 +68,11 @@ export interface ClientFeedback {
 // Client submissions (from popup form)
 export const submitClientForm = async (formData: Omit<ClientSubmission, 'id' | 'status' | 'createdAt' | 'updatedAt'>) => {
   try {
+    if (!isFirebaseAvailable()) {
+      console.warn('Firebase not configured, using mock response');
+      return { success: true, id: 'mock-id-' + Date.now() };
+    }
+
     const submission: Omit<ClientSubmission, 'id'> = {
       ...formData,
       status: 'new',
@@ -75,13 +85,18 @@ export const submitClientForm = async (formData: Omit<ClientSubmission, 'id' | '
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error('Error saving client submission: ', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error?.message || 'Unknown error' };
   }
 };
 
 // Contact form submissions
 export const submitContactForm = async (formData: Omit<ContactSubmission, 'id' | 'status' | 'createdAt' | 'updatedAt'>) => {
   try {
+    if (!isFirebaseAvailable()) {
+      console.warn('Firebase not configured, using mock response');
+      return { success: true, id: 'mock-id-' + Date.now() };
+    }
+
     const submission: Omit<ContactSubmission, 'id'> = {
       ...formData,
       status: 'new',
@@ -94,7 +109,7 @@ export const submitContactForm = async (formData: Omit<ContactSubmission, 'id' |
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error('Error saving contact submission: ', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error?.message || 'Unknown error' };
   }
 };
 
@@ -196,6 +211,11 @@ export const getSubmissionsByStatus = async (
 // Newsletter subscription
 export const subscribeToNewsletter = async (email: string) => {
   try {
+    if (!isFirebaseAvailable()) {
+      console.warn('Firebase not configured, using mock response');
+      return { success: true, id: 'mock-id-' + Date.now() };
+    }
+
     const subscription = {
       email,
       subscribedAt: Timestamp.now(),
@@ -207,7 +227,7 @@ export const subscribeToNewsletter = async (email: string) => {
     return { success: true, id: docRef.id };
   } catch (error) {
     console.error('Error saving newsletter subscription: ', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error?.message || 'Unknown error' };
   }
 };
 

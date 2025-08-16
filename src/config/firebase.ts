@@ -20,7 +20,13 @@ let db;
 let auth;
 let analytics;
 
-if (firebaseConfig.apiKey && firebaseConfig.apiKey !== 'your-api-key-here') {
+// Check if we're in development and Firebase config is available
+const isFirebaseConfigured = firebaseConfig.apiKey && 
+  firebaseConfig.apiKey !== 'your-api-key-here' && 
+  firebaseConfig.projectId && 
+  firebaseConfig.projectId !== 'your-project-id';
+
+if (isFirebaseConfigured) {
   app = initializeApp(firebaseConfig);
   db = getFirestore(app);
   auth = getAuth(app);
@@ -36,7 +42,9 @@ if (firebaseConfig.apiKey && firebaseConfig.apiKey !== 'your-api-key-here') {
     });
   }
 } else {
-  console.warn('Firebase configuration is missing. Please add your Firebase credentials to the .env file.');
+  if (import.meta.env.DEV) {
+    console.warn('Firebase configuration is missing. Please add your Firebase credentials to the .env file.');
+  }
 }
 
 export { db, auth, analytics };

@@ -94,7 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
+      if (user && auth) {
         setUser(user);
         await fetchUserProfile(user.uid);
       } else {
@@ -109,6 +109,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUserProfile = async (uid: string) => {
     try {
+      if (!db) {
+        console.warn('Firestore not available');
+        return;
+      }
+
       const userDoc = await getDoc(doc(db, 'users', uid));
       if (userDoc.exists()) {
         setUserProfile(userDoc.data() as UserProfile);
@@ -125,6 +130,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     try {
+      if (!auth) {
+        throw new Error('Authentication not available');
+      }
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
       throw new Error(error.message);
@@ -133,6 +141,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, name: string, role: UserRole) => {
     try {
+      if (!auth || !db) {
+        throw new Error('Authentication or database not available');
+      }
+
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
@@ -155,6 +167,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
+      if (!auth) {
+        throw new Error('Authentication not available');
+      }
       await signOut(auth);
     } catch (error: any) {
       throw new Error(error.message);
