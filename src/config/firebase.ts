@@ -25,10 +25,13 @@ const isFirebaseConfigured = firebaseConfig.apiKey &&
   firebaseConfig.apiKey !== 'your-api-key-here' && 
   firebaseConfig.apiKey !== 'undefined' &&
   firebaseConfig.apiKey !== '' &&
+  firebaseConfig.apiKey !== 'demo-api-key' &&
+  firebaseConfig.apiKey.startsWith('AIza') && // Valid Firebase API keys start with AIza
   firebaseConfig.projectId && 
   firebaseConfig.projectId !== 'your-project-id' &&
   firebaseConfig.projectId !== 'undefined' &&
-  firebaseConfig.projectId !== '';
+  firebaseConfig.projectId !== '' &&
+  firebaseConfig.projectId !== 'demo-project-id';
 
 if (isFirebaseConfigured) {
   try {
