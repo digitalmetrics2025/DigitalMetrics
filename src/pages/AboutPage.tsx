@@ -136,9 +136,12 @@ const AboutPage = () => {
                   <span>Let's Work Together</span>
                   <ArrowRight className="h-5 w-5" />
                 </button>
-                <button className="border border-slate-600 hover:border-blue-400 text-slate-300 hover:text-white px-8 py-4 rounded-full text-lg font-medium transition-all duration-300">
+                <Link 
+                  to="/portfolio"
+                  className="border border-slate-600 hover:border-blue-400 text-slate-300 hover:text-white px-8 py-4 rounded-full text-lg font-medium transition-all duration-300 flex items-center justify-center"
+                >
                   View Our Work
-                </button>
+                </Link>
               </div>
             </div>
             
@@ -349,9 +352,12 @@ const AboutPage = () => {
             <button className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white px-8 py-4 rounded-full text-lg font-medium transition-all duration-300 transform hover:scale-105">
               Schedule a Strategy Call
             </button>
-            <button className="border border-slate-600 hover:border-blue-400 text-slate-300 hover:text-white px-8 py-4 rounded-full text-lg font-medium transition-all duration-300">
+            <Link 
+              to="/portfolio"
+              className="border border-slate-600 hover:border-blue-400 text-slate-300 hover:text-white px-8 py-4 rounded-full text-lg font-medium transition-all duration-300 flex items-center justify-center"
+            >
               View Case Studies
-            </button>
+            </Link>
           </div>
         </div>
       </section>
