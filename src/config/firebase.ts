@@ -23,27 +23,41 @@ let analytics;
 // Check if we're in development and Firebase config is available
 const isFirebaseConfigured = firebaseConfig.apiKey && 
   firebaseConfig.apiKey !== 'your-api-key-here' && 
+  firebaseConfig.apiKey !== 'undefined' &&
+  firebaseConfig.apiKey !== '' &&
   firebaseConfig.projectId && 
-  firebaseConfig.projectId !== 'your-project-id';
+  firebaseConfig.projectId !== 'your-project-id' &&
+  firebaseConfig.projectId !== 'undefined' &&
+  firebaseConfig.projectId !== '';
 
 if (isFirebaseConfigured) {
-  app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-  auth = getAuth(app);
-  
-  // Initialize Analytics only if supported and in browser environment
-  if (typeof window !== 'undefined') {
-    isSupported().then((supported) => {
-      if (supported) {
-        analytics = getAnalytics(app);
-      }
-    }).catch(() => {
-      // Silently handle analytics initialization errors
-    });
+  try {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+    
+    // Initialize Analytics only if supported and in browser environment
+    if (typeof window !== 'undefined') {
+      isSupported().then((supported) => {
+        if (supported) {
+          analytics = getAnalytics(app);
+        }
+      }).catch(() => {
+        // Silently handle analytics initialization errors
+      });
+    }
+    
+    console.log('Firebase initialized successfully');
+  } catch (error) {
+    console.error('Firebase initialization failed:', error);
+    // Reset variables if initialization fails
+    app = undefined;
+    db = undefined;
+    auth = undefined;
   }
 } else {
   if (import.meta.env.DEV) {
-    console.warn('Firebase configuration is missing. Please add your Firebase credentials to the .env file.');
+    console.warn('Firebase configuration is missing or invalid. App will run in demo mode.');
   }
 }
 

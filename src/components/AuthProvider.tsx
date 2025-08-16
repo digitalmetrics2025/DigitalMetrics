@@ -91,9 +91,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authInitialized, setAuthInitialized] = useState(false);
 
   useEffect(() => {
+    // Set a timeout to prevent infinite loading
+    const loadingTimeout = setTimeout(() => {
+      if (!authInitialized) {
+        console.warn('Auth initialization timeout, proceeding without Firebase');
+        setLoading(false);
+        setAuthInitialized(true);
+      }
+    }, 3000); // 3 second timeout
+
+    // If Firebase auth is not available, set loading to false immediately
+    if (!auth) {
+      console.warn('Firebase Auth not available, proceeding without authentication');
+      setLoading(false);
+      setAuthInitialized(true);
+      clearTimeout(loadingTimeout);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setAuthInitialized(true);
+      clearTimeout(loadingTimeout);
+      
       if (user && auth) {
         setUser(user);
         await fetchUserProfile(user.uid);
@@ -104,7 +126,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    return unsubscribe;
+    return () => {
+      clearTimeout(loadingTimeout);
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   const fetchUserProfile = async (uid: string) => {
@@ -195,6 +222,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     hasPermission,
     isRole
   };
+
+  // Show loading component while initializing
+  if (loading && !authInitialized) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-slate-700 border-t-blue-400 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-400">Initializing...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={value}>
